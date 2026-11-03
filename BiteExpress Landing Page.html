@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiteExpress - Makanan Favoritmu, Diantar Cepat & Warm</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icon Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                50: '#fff7ed',
+                100: '#ffedd5',
+                200: '#fed7aa',
+                500: '#f97316',
+                600: '#ea580c',
+                700: '#c2410c',
+                accent: '#ff5722',
+                dark: '#1c1917',
+              }
+            },
+            boxShadow: {
+              'warm': '0 20px 40px -15px rgba(249, 115, 22, 0.2)',
+              'glow': '0 0 30px rgba(249, 115, 22, 0.4)',
+              'card': '0 10px 30px -5px rgba(0, 0, 0, 0.05)'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+      }
+      .glass-dark {
+        background: rgba(28, 25, 23, 0.85);
+        backdrop-filter: blur(16px);
+      }
+      @keyframes floatSlow {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(1deg); }
+      }
+      @keyframes pulseGlow {
+        0%, 100% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.05); }
+      }
+      .animate-float {
+        animation: floatSlow 4s ease-in-out infinite;
+      }
+      .animate-float-delayed {
+        animation: floatSlow 5s ease-in-out 2s infinite;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+</head>
+<body class="font-sans bg-[#FFFBF7] text-stone-800 antialiased overflow-x-hidden selection:bg-orange-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-24 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 w-full transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 glass-card my-2 rounded-2xl px-5 shadow-sm border border-orange-100/50">
+                
+                <!-- Brand Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-xl flex items-center justify-center text-white shadow-warm group-hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-fire-flame-curved text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-extrabold tracking-tight text-stone-900">Bite<span class="text-orange-600">Express</span></span>
+                        <span class="block text-[10px] font-semibold tracking-widest text-orange-600 uppercase -mt-1">Food Delivery</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Nav Links -->
+                <nav class="hidden md:flex items-center gap-8 font-medium text-stone-600">
+                    <a href="#beranda" class="hover:text-orange-600 transition-colors py-1 text-orange-600 font-semibold">Beranda</a>
+                    <a href="#fitur" class="hover:text-orange-600 transition-colors py-1">Keunggulan</a>
+                    <a href="#cara-kerja" class="hover:text-orange-600 transition-colors py-1">Cara Kerja</a>
+                    <a href="#menu-populer" class="hover:text-orange-600 transition-colors py-1">Menu Populer</a>
+                    <a href="#partner" class="hover:text-orange-600 transition-colors py-1">Mitra Resto</a>
+                </nav>
+
+                <!-- Header Action Buttons -->
+                <div class="hidden md:flex items-center gap-4">
+                    <button onclick="openCartModal()" class="relative p-2.5 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                    </button>
+                    <button onclick="openDownloadModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white font-semibold shadow-warm hover:shadow-glow transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <i class="fa-solid fa-mobile-screen"></i>
+                        <span>Unduh Aplikasi</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center gap-3">
+                    <button onclick="openCartModal()" class="relative p-2 rounded-lg bg-orange-50 text-orange-600">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span id="cart-badge-mobile" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                    </button>
+                    <button id="mobile-toggle" onclick="toggleMobileMenu()" class="p-2 text-stone-700 hover:text-orange-600 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl" id="menu-icon"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden max-w-7xl mx-auto px-4">
+            <div class="glass-card rounded-2xl p-6 mt-1 mb-4 flex flex-col gap-4 border border-orange-100 shadow-xl">
+                <a href="#beranda" onclick="toggleMobileMenu()" class="text-stone-800 font-semibold text-lg hover:text-orange-600 py-1 border-b border-stone-100">Beranda</a>
+                <a href="#fitur" onclick="toggleMobileMenu()" class="text-stone-600 font-medium text-lg hover:text-orange-600 py-1 border-b border-stone-100">Keunggulan</a>
+                <a href="#cara-kerja" onclick="toggleMobileMenu()" class="text-stone-600 font-medium text-lg hover:text-orange-600 py-1 border-b border-stone-100">Cara Kerja</a>
+                <a href="#menu-populer" onclick="toggleMobileMenu()" class="text-stone-600 font-medium text-lg hover:text-orange-600 py-1 border-b border-stone-100">Menu Populer</a>
+                <a href="#partner" onclick="toggleMobileMenu()" class="text-stone-600 font-medium text-lg hover:text-orange-600 py-1">Mitra Resto</a>
+                <button onclick="toggleMobileMenu(); openDownloadModal();" class="mt-2 w-full py-3 rounded-xl bg-orange-600 text-white font-bold text-center shadow-warm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-download"></i> Unduh Aplikasi BiteExpress
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="beranda" class="relative pt-6 pb-16 md:pt-12 md:pb-24 overflow-hidden">
+        <!-- Background Decorative Orbs -->
+        <div class="absolute top-1/4 -left-20 w-96 h-96 bg-orange-200/40 rounded-full filter blur-3xl -z-10"></div>
+        <div class="absolute top-1/3 right-0 w-96 h-96 bg-amber-200/40 rounded-full filter blur-3xl -z-10"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Hero Text & Interactive Form -->
+                <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                    
+                    <!-- Pill Tag -->
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100/80 border border-orange-200 text-orange-700 text-xs sm:text-sm font-bold shadow-sm">
+                        <span class="flex h-2 w-2 rounded-full bg-orange-600 animate-ping"></span>
+                        <span>🔥 Pengiriman Tercepat #1 di Indonesia</span>
+                    </div>
+
+                    <!-- Main Headline -->
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-stone-900 leading-[1.15]">
+                        Makanan Favoritmu, Diantar <span class="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">Warm & Fast</span> dalam 30 Menit.
+                    </h1>
+
+                    <!-- Subheadline -->
+                    <p class="text-base sm:text-lg text-stone-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Jelajahi ribuan kuliner terbaik dari resto favorit di sekitarmu. Garansi ongkir murah, makanan tetap panas, dan pengiriman kilat tepat waktu.
+                    </p>
+
+                    <!-- Interactive Address Search Box -->
+                    <div class="bg-white p-2.5 sm:p-3 rounded-2xl sm:rounded-full shadow-xl border border-orange-100 max-w-xl mx-auto lg:mx-0">
+                        <form onsubmit="handleLocationCheck(event)" class="flex flex-col sm:flex-row items-center gap-2">
+                            <div class="flex items-center gap-3 px-4 py-2 w-full">
+                                <i class="fa-solid fa-location-dot text-orange-500 text-xl"></i>
+                                <input type="text" id="address-input" placeholder="Masukkan alamat atau lokasimu..." class="w-full text-stone-800 placeholder-stone-400 bg-transparent focus:outline-none text-sm sm:text-base font-medium" required>
+                            </div>
+                            <button type="submit" class="w-full sm:w-auto px-7 py-3.5 rounded-xl sm:rounded-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm sm:text-base shadow-warm hover:shadow-glow transition-all whitespace-nowrap flex items-center justify-center gap-2">
+                                <span>Cek Restoran</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Quick Tag Recommendations -->
+                    <div class="flex items-center justify-center lg:justify-start gap-2 flex-wrap text-xs text-stone-500 font-medium pt-1">
+                        <span class="text-stone-400">Pencarian Populer:</span>
+                        <button onclick="quickFillLocation('Ayam Geprek')" class="px-3 py-1 rounded-lg bg-stone-100 hover:bg-orange-50 hover:text-orange-600 transition-colors">🔥 Ayam Geprek</button>
+                        <button onclick="quickFillLocation('Kopi Susu')" class="px-3 py-1 rounded-lg bg-stone-100 hover:bg-orange-50 hover:text-orange-600 transition-colors">☕ Kopi Susu</button>
+                        <button onclick="quickFillLocation('Smash Burger')" class="px-3 py-1 rounded-lg bg-stone-100 hover:bg-orange-50 hover:text-orange-600 transition-colors">🍔 Smash Burger</button>
+                    </div>
+
+                    <!-- Rating & App Store Badges -->
+                    <div class="pt-4 border-t border-stone-200/60 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
+                        <!-- Rating info -->
+                        <div class="flex items-center gap-3">
+                            <div class="flex -space-x-2.5 overflow-hidden">
+                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="User Avatar">
+                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="User Avatar">
+                                <img class="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="User Avatar">
+                            </div>
+                            <div class="text-left">
+                                <div class="flex items-center gap-1 text-amber-400 text-xs">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star-half-stroke"></i>
+                                    <span class="font-bold text-stone-800 ml-1 text-sm">4.9/5.0</span>
+                                </div>
+                                <p class="text-xs text-stone-500 font-medium">Dari 50.000+ Ulasan Pengguna</p>
+                            </div>
+                        </div>
+
+                        <!-- Store Logos -->
+                        <div class="flex items-center gap-3">
+                            <button onclick="openDownloadModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 transition-colors shadow-sm">
+                                <i class="fa-brands fa-apple text-xl text-stone-800"></i>
+                                <div class="text-left leading-tight">
+                                    <span class="block text-[9px] text-stone-500">Download on</span>
+                                    <span class="block text-xs font-bold text-stone-800">App Store</span>
+                                </div>
+                            </button>
+                            <button onclick="openDownloadModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 transition-colors shadow-sm">
+                                <i class="fa-brands fa-google-play text-lg text-emerald-600"></i>
+                                <div class="text-left leading-tight">
+                                    <span class="block text-[9px] text-stone-500">GET IT ON</span>
+                                    <span class="block text-xs font-bold text-stone-800">Google Play</span>
+                                </div>
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Hero Visual Mockup & Interactive Floating Widgets -->
+                <div class="lg:col-span-5 relative flex justify-center">
+                    
+                    <!-- Decorative Background Rings -->
+                    <div class="w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] bg-gradient-to-tr from-orange-500 to-amber-400 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 filter blur-md opacity-25 animate-pulse"></div>
+
+                    <!-- Main Dish / Phone Showcase Container -->
+                    <div class="relative w-full max-w-sm sm:max-w-md bg-gradient-to-b from-orange-500 to-amber-600 p-4 sm:p-6 rounded-3xl shadow-2xl border-4 border-white text-white overflow-hidden">
+                        
+                        <!-- Top Bar Mockup -->
+                        <div class="flex items-center justify-between pb-4 border-b border-white/20">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-location-arrow text-amber-200"></i>
+                                <span class="text-xs font-medium opacity-90 truncate max-w-[180px]">Kebayoran Baru, Jakarta</span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold">LIVE TRACKING</span>
+                        </div>
+
+                        <!-- Card Image Showcase -->
+                        <div class="relative my-4 rounded-2xl overflow-hidden shadow-lg group">
+                            <img id="hero-food-img" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" alt="Food Showcase" class="w-full h-56 object-cover transform group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                            
+                            <!-- Food Info Overlay -->
+                            <div class="absolute bottom-3 left-3 right-3 text-left">
+                                <span class="px-2 py-0.5 rounded-md bg-orange-600 text-[10px] font-bold text-white uppercase tracking-wider">Super Promo</span>
+                                <h4 class="text-base font-bold text-white mt-1">Double Smash Burger Extra Cheese</h4>
+                                <div class="flex items-center justify-between text-xs text-stone-200 mt-1">
+                                    <span><i class="fa-solid fa-star text-amber-400 mr-1"></i>4.9 (1.2k+ resto)</span>
+                                    <span class="font-bold text-amber-300">Rp 35.000</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulated Delivery Status Widget -->
+                        <div class="bg-white text-stone-800 p-3.5 rounded-xl shadow-lg space-y-2">
+                            <div class="flex items-center justify-between text-xs font-bold">
+                                <span class="flex items-center gap-1.5 text-orange-600">
+                                    <i class="fa-solid fa-motorcycle animate-bounce"></i> Kurir Menuju Lokasimu
+                                </span>
+                                <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md text-[11px]">18 Mnt Tiba</span>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="w-full bg-stone-100 rounded-full h-2 overflow-hidden">
+                                <div class="bg-gradient-to-r from-orange-500 to-amber-500 h-2 rounded-full w-3/4 transition-all duration-1000"></div>
+                            </div>
+
+                            <div class="flex justify-between text-[10px] text-stone-400 font-medium">
+                                <span>Resto</span>
+                                <span class="text-orange-600 font-bold">Di Perjalanan</span>
+                                <span>Sampai</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Floating Badge 1: Speed Guarantee -->
+                    <div class="absolute -top-4 -left-2 sm:-left-6 glass-card p-3 rounded-2xl shadow-xl border border-orange-100 flex items-center gap-3 animate-float hidden sm:flex">
+                        <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xl">
+                            ⚡
+                        </div>
+                        <div>
+                            <span class="block text-xs text-stone-500 font-medium">Garansi Tiba</span>
+                            <span class="block text-sm font-extrabold text-stone-800">&lt; 30 Menit</span>
+                        </div>
+                    </div>
+
+                    <!-- Floating Badge 2: Free Shipping -->
+                    <div class="absolute -bottom-6 -right-2 sm:-right-6 glass-card p-3 rounded-2xl shadow-xl border border-orange-100 flex items-center gap-3 animate-float-delayed hidden sm:flex">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xl">
+                            🏷️
+                        </div>
+                        <div>
+                            <span class="block text-xs text-stone-500 font-medium">Promo Pengguna Baru</span>
+                            <span class="block text-sm font-extrabold text-emerald-600">Gratis Ongkir 100%</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Stats Bar -->
+    <section class="py-10 bg-white border-y border-orange-100/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                
+                <div class="p-4 rounded-2xl bg-orange-50/50">
+                    <span class="block text-3xl sm:text-4xl font-extrabold text-orange-600">500.000+</span>
+                    <span class="text-xs sm:text-sm text-stone-600 font-medium mt-1 block">Pesanan Sukses Terantar</span>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-orange-50/50">
+                    <span class="block text-3xl sm:text-4xl font-extrabold text-stone-900">2.500+</span>
+                    <span class="text-xs sm:text-sm text-stone-600 font-medium mt-1 block">Mitra Restoran Terverifikasi</span>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-orange-50/50">
+                    <span class="block text-3xl sm:text-4xl font-extrabold text-orange-600">15 Mnt</span>
+                    <span class="text-xs sm:text-sm text-stone-600 font-medium mt-1 block">Rata-rata Waktu Pengiriman</span>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-orange-50/50">
+                    <span class="block text-3xl sm:text-4xl font-extrabold text-stone-900">99.8%</span>
+                    <span class="text-xs sm:text-sm text-stone-600 font-medium mt-1 block">Tingkat Kepuasan Pelanggan</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Section -->
+    <section id="fitur" class="py-20 bg-[#FFFBF7]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-orange-600 font-bold text-xs uppercase tracking-widest bg-orange-100 px-3 py-1 rounded-full">Mengapa BiteExpress?</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3">Nikmati Pengalaman Pesan Makanan Tanpa Drama</h2>
+                <p class="text-stone-600 text-sm sm:text-base mt-3">Didesain khusus untuk memenuhi rasa laparmu secara cepat, praktis, dan hemat setiap hari.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                
+                <!-- Feature Card 1 -->
+                <div class="bg-white p-8 rounded-3xl shadow-card border border-stone-100 hover:-translate-y-1.5 transition-all duration-300 group">
+                    <div class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 text-2xl mb-6 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-2">Live GPS Tracking</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">Pantau pergerakan kurir secara presisi di peta 3D real-time dari resto sampai depan pintu rumahmu.</p>
+                </div>
+
+                <!-- Feature Card 2 -->
+                <div class="bg-white p-8 rounded-3xl shadow-card border border-stone-100 hover:-translate-y-1.5 transition-all duration-300 group">
+                    <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 text-2xl mb-6 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-2">Tanpa Minimal Order</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">Pesan 1 cangkir kopi atau snack favoritmu tanpa syarat minimum belanja. Tetap diantar dengan ramah!</p>
+                </div>
+
+                <!-- Feature Card 3 -->
+                <div class="bg-white p-8 rounded-3xl shadow-card border border-stone-100 hover:-translate-y-1.5 transition-all duration-300 group">
+                    <div class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 text-2xl mb-6 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-2">Group Order (Patungan)</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">Pesan bareng teman kantor dalam 1 keranjang bersama. Bayar patungan langsung tanpa ribet hitung manual.</p>
+                </div>
+
+                <!-- Feature Card 4 -->
+                <div class="bg-white p-8 rounded-3xl shadow-card border border-stone-100 hover:-translate-y-1.5 transition-all duration-300 group">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-box-tissue"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-2">Thermal Bag Protection</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">Setiap pesanan disimpan di tas berisolasi termal khusus agar makanan tiba dalam keadaan tetap hangat & fresh.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- How It Works (Cara Kerja) -->
+    <section id="cara-kerja" class="py-20 bg-white border-y border-stone-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-orange-600 font-bold text-xs uppercase tracking-widest bg-orange-100 px-3 py-1 rounded-full">Cara Kerja</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3">4 Langkah Mudah Pesan Makanan</h2>
+                <p class="text-stone-600 text-sm sm:text-base mt-3">Hanya butuh 30 detik dari milih menu sampai pesananmu diproses.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+                
+                <!-- Step 1 -->
+                <div class="relative flex flex-col items-center text-center p-6 rounded-3xl bg-[#FFFBF7] border border-orange-100/80">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-extrabold text-2xl flex items-center justify-center shadow-warm mb-6">
+                        1
+                    </div>
+                    <h4 class="text-lg font-bold text-stone-900 mb-2">Tentukan Lokasi</h4>
+                    <p class="text-stone-600 text-sm">Aktifkan GPS atau masukkan alamat pengirimanmu untuk melihat pilihan resto terdekat.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative flex flex-col items-center text-center p-6 rounded-3xl bg-[#FFFBF7] border border-orange-100/80">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-extrabold text-2xl flex items-center justify-center shadow-warm mb-6">
+                        2
+                    </div>
+                    <h4 class="text-lg font-bold text-stone-900 mb-2">Pilih Menu Favorit</h4>
+                    <p class="text-stone-600 text-sm">Jelajahi berbagai pilihan menu menarik, baca ulasan resto, dan klaim promo diskonmu.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative flex flex-col items-center text-center p-6 rounded-3xl bg-[#FFFBF7] border border-orange-100/80">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-extrabold text-2xl flex items-center justify-center shadow-warm mb-6">
+                        3
+                    </div>
+                    <h4 class="text-lg font-bold text-stone-900 mb-2">Bayar Sangat Mudah</h4>
+                    <p class="text-stone-600 text-sm">Gunakan metode favoritmu: GoPay, ShopeePay, OVO, QRIS, Virtual Account, atau COD.</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative flex flex-col items-center text-center p-6 rounded-3xl bg-[#FFFBF7] border border-orange-100/80">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-extrabold text-2xl flex items-center justify-center shadow-warm mb-6">
+                        4
+                    </div>
+                    <h4 class="text-lg font-bold text-stone-900 mb-2">Lacak & Nikmati</h4>
+                    <p class="text-stone-600 text-sm">Pantau perjalanan kurir secara real-time dan nikmati makanan lezat hangatmu!</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Interactive Menu Showcase -->
+    <section id="menu-populer" class="py-20 bg-[#FFFBF7]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div>
+                    <span class="text-orange-600 font-bold text-xs uppercase tracking-widest bg-orange-100 px-3 py-1 rounded-full">Menu Pilihan Hari Ini</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3">Rekomendasi Kuliner Terlaris</h2>
+                    <p class="text-stone-600 text-sm sm:text-base mt-2">Pesanan terbanyak minggu ini di sekitarmu.</p>
+                </div>
+
+                <!-- Category Filter Buttons -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 hide-scrollbar">
+                    <button onclick="filterCategory('semua')" class="cat-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-orange-600 text-white shadow-warm" data-cat="semua">Semua</button>
+                    <button onclick="filterCategory('ayam')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-white text-stone-600 border border-stone-200 hover:border-orange-500" data-cat="ayam">Ayam & Bebek</button>
+                    <button onclick="filterCategory('kopi')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-white text-stone-600 border border-stone-200 hover:border-orange-500" data-cat="kopi">Kopi & Minuman</button>
+                    <button onclick="filterCategory('fastfood')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-white text-stone-600 border border-stone-200 hover:border-orange-500" data-cat="fastfood">Fast Food</button>
+                    <button onclick="filterCategory('sehat')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-white text-stone-600 border border-stone-200 hover:border-orange-500" data-cat="sehat">Makanan Sehat</button>
+                    <button onclick="filterCategory('dessert')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-white text-stone-600 border border-stone-200 hover:border-orange-500" data-cat="dessert">Dessert</button>
+                </div>
+            </div>
+
+            <!-- Food Grid -->
+            <div id="food-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Food Item Cards inserted dynamically via JavaScript -->
+            </div>
+
+        </div>
+    </section>
+
+    <!-- App Testimonials Section -->
+    <section class="py-20 bg-white border-t border-stone-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-orange-600 font-bold text-xs uppercase tracking-widest bg-orange-100 px-3 py-1 rounded-full">Ulasan Pengguna</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3">Apa Kata Pecinta Kuliner?</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Review Card 1 -->
+                <div class="bg-[#FFFBF7] p-6 rounded-3xl border border-orange-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-1 text-amber-400 text-sm">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-stone-700 text-sm italic">"Fitur Group Order bener-bener penyelamat pas makan siang di kantor. Tinggal bagi link, temen-temen masukin menu sendiri, ga pusing talangan lagi!"</p>
+                    <div class="flex items-center gap-3 pt-2 border-t border-stone-200/60">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Reviewer" class="w-10 h-10 rounded-full object-cover">
+                        <div>
+                            <h5 class="font-bold text-stone-900 text-sm">Amanda Putri</h5>
+                            <span class="text-xs text-stone-400">Jakarta Selatan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Card 2 -->
+                <div class="bg-[#FFFBF7] p-6 rounded-3xl border border-orange-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-1 text-amber-400 text-sm">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-stone-700 text-sm italic">"Estimasi waktunya akurat banget. Pesan mie pedas sampai rumah masih berkuah panas dan krispinya kerasa. Kurirnya juga ramah."</p>
+                    <div class="flex items-center gap-3 pt-2 border-t border-stone-200/60">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Reviewer" class="w-10 h-10 rounded-full object-cover">
+                        <div>
+                            <h5 class="font-bold text-stone-900 text-sm">Rian Pratama</h5>
+                            <span class="text-xs text-stone-400">Bandung</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Card 3 -->
+                <div class="bg-[#FFFBF7] p-6 rounded-3xl border border-orange-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-1 text-amber-400 text-sm">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-stone-700 text-sm italic">"Banyak banget promo voucher potongan harga tiap hari. Bebas ongkirnya beneran tanpa ribet minimal belanja."</p>
+                    <div class="flex items-center gap-3 pt-2 border-t border-stone-200/60">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80" alt="Reviewer" class="w-10 h-10 rounded-full object-cover">
+                        <div>
+                            <h5 class="font-bold text-stone-900 text-sm">Siti Nurhaliza</h5>
+                            <span class="text-xs text-stone-400">Surabaya</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- B2B Partnership Section -->
+    <section id="partner" class="py-20 bg-[#FFFBF7]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Merchant Partner Card -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-900 to-stone-800 p-8 sm:p-10 text-white shadow-xl flex flex-col justify-between group">
+                    <div class="space-y-4 relative z-10">
+                        <span class="px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-bold uppercase tracking-wider">Mitra Merchant</span>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold">Punya Restoran atau Usaha Kuliner?</h3>
+                        <p class="text-stone-300 text-sm sm:text-base leading-relaxed">Tingkatkan omset tokomu hingga 3x lipat dengan jangkauan ke jutaan pengguna aktif BiteExpress di kota Anda.</p>
+                    </div>
+                    <div class="pt-8 relative z-10">
+                        <button onclick="showToast('Form pendaftaran Mitra Resto akan segera dibuka!', 'info')" class="px-6 py-3.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm shadow-warm transition-all flex items-center gap-2">
+                            <span>Daftar Jadi Mitra Resto</span>
+                            <i class="fa-solid fa-store"></i>
+                        </button>
+                    </div>
+                    <!-- Decorative Background Pattern -->
+                    <i class="fa-solid fa-utensils absolute -bottom-6 -right-6 text-9xl text-white/5 transform group-hover:scale-110 transition-transform"></i>
+                </div>
+
+                <!-- Driver Partner Card -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-600 to-amber-600 p-8 sm:p-10 text-white shadow-xl flex flex-col justify-between group">
+                    <div class="space-y-4 relative z-10">
+                        <span class="px-3 py-1 rounded-full bg-white/20 text-white border border-white/30 text-xs font-bold uppercase tracking-wider">Mitra Kurir</span>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold">Gabung Jadi Driver BiteExpress</h3>
+                        <p class="text-orange-100 text-sm sm:text-base leading-relaxed">Dapatkan penghasilan fleksibel hingga Rp 8.000.000/bulan dengan bonus harian dan jaminan asuransi keselamatan.</p>
+                    </div>
+                    <div class="pt-8 relative z-10">
+                        <button onclick="showToast('Form pendaftaran Driver Kurir akan segera dibuka!', 'info')" class="px-6 py-3.5 rounded-xl bg-white text-orange-700 hover:bg-stone-100 font-bold text-sm shadow-lg transition-all flex items-center gap-2">
+                            <span>Daftar Kurir BiteExpress</span>
+                            <i class="fa-solid fa-motorcycle"></i>
+                        </button>
+                    </div>
+                    <!-- Decorative Background Pattern -->
+                    <i class="fa-solid fa-motorcycle absolute -bottom-6 -right-6 text-9xl text-white/10 transform group-hover:scale-110 transition-transform"></i>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- App Download CTA Banner -->
+    <section class="py-16 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-10">
+                
+                <div class="space-y-4 text-center lg:text-left max-w-xl">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Siap Untuk Memanjakan Lidahmu Hari Ini?</h2>
+                    <p class="text-orange-100 text-base sm:text-lg">Unduh aplikasi BiteExpress sekarang dan nikmati diskon khusus 50% untuk pesanan pertamamu.</p>
+                    
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
+                        <button onclick="openDownloadModal()" class="px-6 py-3.5 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white font-bold flex items-center gap-3 shadow-2xl transition-all">
+                            <i class="fa-brands fa-apple text-2xl"></i>
+                            <div class="text-left">
+                                <span class="block text-[10px] text-stone-400">Download di</span>
+                                <span class="block text-sm">App Store</span>
+                            </div>
+                        </button>
+
+                        <button onclick="openDownloadModal()" class="px-6 py-3.5 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white font-bold flex items-center gap-3 shadow-2xl transition-all">
+                            <i class="fa-brands fa-google-play text-xl text-emerald-400"></i>
+                            <div class="text-left">
+                                <span class="block text-[10px] text-stone-400">Unduh di</span>
+                                <span class="block text-sm">Google Play</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive QR Code Simulated Card -->
+                <div class="bg-white p-6 rounded-3xl text-stone-800 shadow-2xl text-center flex flex-col items-center max-w-xs">
+                    <div class="w-40 h-40 bg-stone-100 p-2 rounded-2xl flex items-center justify-center border-2 border-dashed border-orange-300 relative group">
+                        <i class="fa-solid fa-qrcode text-8xl text-stone-800"></i>
+                    </div>
+                    <span class="block font-bold text-sm text-stone-900 mt-4">Pindai QR Code untuk Install</span>
+                    <span class="text-xs text-stone-500 mt-1">Kompatibel dengan iOS & Android</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 text-stone-400 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-stone-800">
+                
+                <!-- Col 1: Brand Info -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white">
+                            <i class="fa-solid fa-fire-flame-curved text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold text-white tracking-tight">Bite<span class="text-orange-500">Express</span></span>
+                    </div>
+                    <p class="text-sm text-stone-400 leading-relaxed max-w-sm">
+                        Layanan pengiriman makanan super cepat dan andal di Indonesia. Menghubungkan Anda dengan ribuan kuliner lezat setiap saat.
+                    </p>
+                    <div class="flex items-center gap-4 text-stone-400 text-lg pt-2">
+                        <a href="#" class="w-9 h-9 rounded-full bg-stone-800 hover:bg-orange-600 hover:text-white flex items-center justify-center transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-stone-800 hover:bg-orange-600 hover:text-white flex items-center justify-center transition-colors"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-stone-800 hover:bg-orange-600 hover:text-white flex items-center justify-center transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-stone-800 hover:bg-orange-600 hover:text-white flex items-center justify-center transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Perusahaan -->
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider">Perusahaan</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">Tentang Kami</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">Karir</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">Blog & Berita Kuliner</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">Kontak Kami</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Layanan & Mitra -->
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider">Layanan</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">Daftar Restoran</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">Daftar Kurir Driver</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">BiteExpress Corporate</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors">Area Jangkauan Layanan</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Newsletter -->
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider">Langganan Promo</h4>
+                    <p class="text-xs text-stone-400">Dapatkan voucher promo khusus langsung ke emailmu setiap minggu.</p>
+                    <form onsubmit="handleNewsletter(event)" class="space-y-2">
+                        <input type="email" placeholder="Email kamu..." class="w-full px-3.5 py-2.5 rounded-xl bg-stone-800 text-white placeholder-stone-500 text-xs focus:outline-none focus:ring-1 focus:ring-orange-500" required>
+                        <button type="submit" class="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-warm transition-colors">Langganan Gratis</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Bottom Copyright -->
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
+                <p>&copy; 2026 BiteExpress Indonesia. Seluruh hak cipta dilindungi undang-undang.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-stone-400">Syarat & Ketentuan</a>
+                    <a href="#" class="hover:text-stone-400">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-stone-400">Bantuan (FAQ)</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex justify-end">
+        <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between p-6 overflow-y-auto">
+            <div>
+                <div class="flex items-center justify-between pb-4 border-b border-stone-200">
+                    <h3 class="text-lg font-bold text-stone-900 flex items-center gap-2">
+                        <i class="fa-solid fa-bag-shopping text-orange-600"></i> Keranjang Belanja
+                    </h3>
+                    <button onclick="closeCartModal()" class="text-stone-400 hover:text-stone-700 text-xl">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div id="cart-items-list" class="py-6 space-y-4">
+                    <div class="text-center py-10 text-stone-400">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-3 text-stone-300 block"></i>
+                        <p class="text-sm">Keranjang belanjaanmu masih kosong.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-stone-200 space-y-3">
+                <div class="flex justify-between text-sm font-bold text-stone-900">
+                    <span>Total Subtotal</span>
+                    <span id="cart-total-price">Rp 0</span>
+                </div>
+                <button onclick="checkoutCart()" class="w-full py-3.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm shadow-warm transition-all flex items-center justify-center gap-2">
+                    <span>Lanjut ke Pembayaran</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Download Modal -->
+    <div id="download-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center relative space-y-6 shadow-2xl">
+            <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-stone-400 hover:text-stone-700 text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 text-3xl mx-auto">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-extrabold text-stone-900">Unduh Aplikasi BiteExpress</h3>
+                <p class="text-stone-600 text-sm mt-2">Dapatkan diskon promo 50% untuk pesanan pertamamu di aplikasi!</p>
+            </div>
+
+            <div class="p-4 bg-orange-50 rounded-2xl flex justify-center border border-orange-100">
+                <i class="fa-solid fa-qrcode text-9xl text-stone-800"></i>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="simDownload('App Store')" class="py-3 px-4 bg-stone-900 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-stone-800">
+                    <i class="fa-brands fa-apple text-base"></i> App Store
+                </button>
+                <button onclick="simDownload('Google Play')" class="py-3 px-4 bg-stone-900 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-stone-800">
+                    <i class="fa-brands fa-google-play text-base text-emerald-400"></i> Google Play
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Sample Food Data
+        const foodItems = [
+            {
+                id: 1,
+                name: "Ayam Geprek Sambal Korek Jumbo",
+                category: "ayam",
+                resto: "Ayam Geprek Master - Senopati",
+                price: 28000,
+                oldPrice: 40000,
+                rating: 4.9,
+                time: "15-20 min",
+                distance: "1.2 km",
+                tag: "Diskon 30%",
+                image: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 2,
+                name: "Iced Caramel Macchiato Signature",
+                category: "kopi",
+                resto: "Kopi Kenangan Mantan - Blok M",
+                price: 24000,
+                oldPrice: 30000,
+                rating: 4.8,
+                time: "10-15 min",
+                distance: "0.8 km",
+                tag: "Beli 1 Gratis 1",
+                image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 3,
+                name: "Double Cheese Melt Smash Burger",
+                category: "fastfood",
+                resto: "Bang Burger Extra - Kemang",
+                price: 45000,
+                oldPrice: 55000,
+                rating: 4.9,
+                time: "20-25 min",
+                distance: "2.1 km",
+                tag: "Terlaris",
+                image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 4,
+                name: "Salmon Poke Bowl Sesame Dressing",
+                category: "sehat",
+                resto: "Healthy Greens Co - SCBD",
+                price: 58000,
+                oldPrice: 72000,
+                rating: 4.9,
+                time: "20-30 min",
+                distance: "3.0 km",
+                tag: "Organic",
+                image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 5,
+                name: "Matcha Brown Sugar Boba Latte",
+                category: "kopi",
+                resto: "Xing Fu Cha - Kuningan",
+                price: 27000,
+                oldPrice: 35000,
+                rating: 4.7,
+                time: "15 min",
+                distance: "1.5 km",
+                tag: "Free Ongkir",
+                image: "https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 6,
+                name: "Artisan Pepperoni Pizza 12 Inch",
+                category: "fastfood",
+                resto: "Slice & Dice Pizza - Tebet",
+                price: 85000,
+                oldPrice: 110000,
+                rating: 4.9,
+                time: "25-35 min",
+                distance: "2.8 km",
+                tag: "Diskon 25%",
+                image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 7,
+                name: "Souffle Pancake & Butter Croissant",
+                category: "dessert",
+                resto: "Bakehouse Pastry - Pondok Indah",
+                price: 38000,
+                oldPrice: 48000,
+                rating: 4.8,
+                time: "20 min",
+                distance: "1.9 km",
+                tag: "Chef Special",
+                image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 8,
+                name: "Special Tonkotsu Shoyu Ramen",
+                category: "ayam",
+                resto: "Ramen Ya Hot - Menteng",
+                price: 49000,
+                oldPrice: 62000,
+                rating: 4.9,
+                time: "18-25 min",
+                distance: "2.4 km",
+                tag: "Hot & Spicy",
+                image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+
+        let cart = [];
+
+        // Render Food Grid Items
+        function renderFoodItems(category = 'semua') {
+            const container = document.getElementById('food-grid');
+            container.innerHTML = '';
+
+            const filtered = category === 'semua' ? foodItems : foodItems.filter(item => item.category === category);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl overflow-hidden border border-stone-100 shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between group";
+                
+                card.innerHTML = `
+                    <div>
+                        <!-- Image Container -->
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <span class="absolute top-3 left-3 bg-orange-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-md">
+                                ${item.tag}
+                            </span>
+                            <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg text-xs font-bold text-stone-800 shadow-md flex items-center gap-1">
+                                <i class="fa-solid fa-clock text-orange-500"></i> ${item.time}
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-5">
+                            <div class="flex items-center justify-between text-xs text-stone-400 font-medium mb-1">
+                                <span class="truncate max-w-[150px]"><i class="fa-solid fa-store mr-1 text-orange-500"></i>${item.resto}</span>
+                                <span><i class="fa-solid fa-location-dot mr-1"></i>${item.distance}</span>
+                            </div>
+
+                            <h4 class="font-bold text-stone-900 text-base line-clamp-1 group-hover:text-orange-600 transition-colors">${item.name}</h4>
+                            
+                            <div class="flex items-center gap-1 text-amber-400 text-xs mt-1.5 font-bold">
+                                <i class="fa-solid fa-star"></i>
+                                <span class="text-stone-800">${item.rating}</span>
+                                <span class="text-stone-400 font-normal ml-1">(200+ ulasan)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Price & Add Button -->
+                    <div class="px-5 pb-5 pt-0 flex items-center justify-between mt-2 border-t border-stone-100 pt-3">
+                        <div>
+                            <span class="text-xs text-stone-400 line-through block">Rp ${item.oldPrice.toLocaleString('id-ID')}</span>
+                            <span class="text-base font-extrabold text-orange-600">Rp ${item.price.toLocaleString('id-ID')}</span>
+                        </div>
+                        <button onclick="addToCart(${item.id})" class="px-3.5 py-2 rounded-xl bg-orange-50 hover:bg-orange-600 text-orange-600 hover:text-white font-bold text-xs transition-colors flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Pesan</span>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Category Filter Switcher
+        function filterCategory(cat) {
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if(btn.dataset.cat === cat) {
+                    btn.className = "cat-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-orange-600 text-white shadow-warm";
+                } else {
+                    btn.className = "cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap bg-white text-stone-600 border border-stone-200 hover:border-orange-500";
+                }
+            });
+            renderFoodItems(cat);
+        }
+
+        // Location Check Simulator
+        function handleLocationCheck(e) {
+            e.preventDefault();
+            const address = document.getElementById('address-input').value;
+            if(!address) return;
+
+            showToast(`🎉 Horay! 142 Restoran tersedia di area "${address}". Diskon ongkir 100% aktif!`, 'success');
+        }
+
+        function quickFillLocation(query) {
+            document.getElementById('address-input').value = query + " terdekat";
+            showToast(`Mencari resto dengan menu: ${query}...`, 'info');
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-stone-900 border-emerald-500 text-white' : 'bg-stone-900 border-orange-500 text-white';
+            const icon = type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-info text-orange-400';
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl shadow-2xl border-l-4 ${bgClass} text-xs sm:text-sm font-medium transition-all duration-300 transform translate-x-full max-w-md`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} text-lg"></i>
+                <span class="flex-1">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Cart Functionality
+        function addToCart(id) {
+            const food = foodItems.find(f => f.id === id);
+            if(!food) return;
+
+            const existing = cart.find(c => c.id === id);
+            if(existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...food, qty: 1 });
+            }
+
+            updateCartUI();
+            showToast(`"${food.name}" berhasil ditambahkan ke keranjang!`, 'success');
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+            document.getElementById('cart-badge').innerText = totalQty;
+            document.getElementById('cart-badge-mobile').innerText = totalQty;
+
+            const listContainer = document.getElementById('cart-items-list');
+            const totalPriceEl = document.getElementById('cart-total-price');
+
+            if(cart.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-10 text-stone-400">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-3 text-stone-300 block"></i>
+                        <p class="text-sm">Keranjang belanjaanmu masih kosong.</p>
+                    </div>
+                `;
+                totalPriceEl.innerText = 'Rp 0';
+                return;
+            }
+
+            listContainer.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.qty;
+                total += itemTotal;
+
+                const itemRow = document.createElement('div');
+                itemRow.className = "flex items-center justify-between p-3 rounded-2xl bg-stone-50 border border-stone-100";
+                itemRow.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <h5 class="text-xs font-bold text-stone-800 line-clamp-1 max-w-[150px]">${item.name}</h5>
+                            <span class="text-xs font-semibold text-orange-600">Rp ${item.price.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-stone-200">
+                        <button onclick="changeQty(${item.id}, -1)" class="w-5 h-5 text-stone-500 font-bold hover:text-orange-600">-</button>
+                        <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                        <button onclick="changeQty(${item.id}, 1)" class="w-5 h-5 text-stone-500 font-bold hover:text-orange-600">+</button>
+                    </div>
+                `;
+                listContainer.appendChild(itemRow);
+            });
+
+            totalPriceEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if(!item) return;
+
+            item.qty += delta;
+            if(item.qty <= 0) {
+                cart = cart.filter(c => c.id !== id);
+            }
+            updateCartUI();
+        }
+
+        function checkoutCart() {
+            if(cart.length === 0) {
+                showToast('Keranjang masih kosong, yuk pilih makanan dulu!', 'info');
+                return;
+            }
+            showToast('🚀 Pesanan sedang diproses! Mengarahkan ke halaman pembayaran...', 'success');
+            cart = [];
+            updateCartUI();
+            closeCartModal();
+        }
+
+        // Modals & Menu Toggles
+        function openCartModal() {
+            document.getElementById('cart-modal').classList.remove('hidden');
+        }
+        function closeCartModal() {
+            document.getElementById('cart-modal').classList.add('hidden');
+        }
+
+        function openDownloadModal() {
+            document.getElementById('download-modal').classList.remove('hidden');
+        }
+        function closeDownloadModal() {
+            document.getElementById('download-modal').classList.add('hidden');
+        }
+
+        function simDownload(store) {
+            showToast(`Mengunduh aplikasi BiteExpress dari ${store}...`, 'success');
+            closeDownloadModal();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            menu.classList.toggle('hidden');
+            
+            if(menu.classList.contains('hidden')) {
+                icon.className = "fa-solid fa-bars text-2xl";
+            } else {
+                icon.className = "fa-solid fa-xmark text-2xl";
+            }
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            showToast('Terima kasih! Kamu berhasil berlangganan voucher promo BiteExpress.', 'success');
+            e.target.reset();
+        }
+
+        // On Page Load Initialization
+        window.onload = function() {
+            renderFoodItems('semua');
+        };
+    </script>
+</body>
+</html>
